@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
+__all__= ['pixNum2RaDec', 'DC2VisitsSim']
+
 def pixNum2RaDec(nside, pix):
     """
     Convert from HEALpix pixels number to ra, dec.

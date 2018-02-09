@@ -14,7 +14,7 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 import os
 
-__all__= ['findDC2RegionPixels', 'getSurveyHEALPixRADec',
+__all__= ['returnXYZ', 'getSurveyHEALPixRADec', 'findDC2RegionPixels',
           'findDC2RegionVisitsInfo', 'getSimData',
          'getDC2VisitList']
 
