@@ -11,7 +11,7 @@ def pixNum2RaDec(nside, pix):
     """
     Convert from HEALpix pixels number to ra, dec.
     """
-    theta, phi = hp.pix2ang(pix, nside)
+    theta, phi = hp.pix2ang(nside= nside, ipix= pix)
     return phi, np.pi/2.0-theta
 
 def DC2VisitsSim(outDir, dataTag, simdata, pointingRACol, pointingDecCol,
@@ -48,11 +48,11 @@ def DC2VisitsSim(outDir, dataTag, simdata, pointingRACol, pointingDecCol,
     for index, hid in enumerate(obsIDsList[obsHistIndMin:obsHistIndMax]):
         fig, axes= plt.subplots(1,1)
         # plot the full protoDc2 region
-        DC2pixRA, DC2pixDec= pixNum2RaDec(regionPixels_WFD, nside)
+        DC2pixRA, DC2pixDec= pixNum2RaDec(nside= nside, pix= regionPixels_WFD)
         axes.plot(np.degrees(DC2pixRA), np.degrees(DC2pixDec), 'o',
                   color= 'g', alpha= 0.3, ms= 10, label= 'WFD footprint')
         # plot the uDDF region
-        DC2pixRA, DC2pixDec= pixNum2RaDec(regionPixels_DD, nside)
+        DC2pixRA, DC2pixDec= pixNum2RaDec(nside=nside, pix= regionPixels_DD)
         axes.plot(np.degrees(DC2pixRA), np.degrees(DC2pixDec), 'o',
                   color= 'b', alpha= 0.3, ms= 10, label= 'uDDF footprint')
         
@@ -80,7 +80,7 @@ def DC2VisitsSim(outDir, dataTag, simdata, pointingRACol, pointingDecCol,
         pointingDec= simdata[ind][pointingDecCol] # radians
         c = SkyCoord(ra=pointingRA*u.radian, dec= pointingDec*u.radian)
         regionPixels= hp.query_disc(nside= nside, vec=c.cartesian.xyz, radius= radius)
-        pixRA, pixDec= pixNum2RaDec(regionPixels, nside)
+        pixRA, pixDec= pixNum2RaDec(nside= nside, pix= regionPixels)
         axes.plot(np.degrees(pixRA), np.degrees(pixDec), '.',
                   color= 'k', ms= 10, alpha= 0.7, label='dithered FOV')
 
