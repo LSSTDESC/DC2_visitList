@@ -1,2 +1,2 @@
 # DC2_visitList
-Code to create the list of visits to simulate for DC2.
+This repo contains the code to create the visit list to simulate in DC2 as well as the outputs. The code was first developed within the [DC2_repo](https://github.com/humnaawan/DC2_Repo). Since only the final is necessary for the DC2 run itself, its better to have the code, and intermediate outputs outside the main repo. The relevant files were moved here from the fork while preserving history; following the steps listed [here](https://gist.github.com/humnaawan/3b24aa0632213acf1be03c12414b5b36).
