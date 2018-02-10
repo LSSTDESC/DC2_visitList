@@ -5,10 +5,10 @@ import os
 
 description = "Code for generating the list of visits to simulate in DC2."
 
-PACKAGENAME = 'DC2visitGen'
-packageDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), PACKAGENAME)+'/code'
+packageDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'DC2visitGen')+'/code'
+PACKAGENAME = 'dc2visitgen'
 
-setup(name= "DC2visitGen",
+setup(name= "dc2visitgen",
       version= "0.1",
       description= description,
       packages=[PACKAGENAME],
