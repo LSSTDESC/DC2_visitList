@@ -140,13 +140,22 @@ for p, pixel in enumerate(regionPixels):  # run over all the pixels in the regio
     percentDone = 100.*(p+1)/totPixels
     delPercent = percentDone-prevPercent
     if (delPercent>5):
-        readme = add_update(update='%f%% pixels done\nTime passed (min): %f\n'%(percentDone, (time.time()-startTime)/60.),
-                            readme=readme, verbose=verbose)
+        timetaken = (time.time()-startTime)/60.
+        if timetaken > 60.:
+            readme = add_update(update='%f%% pixels done\nTime passed (hrs): %f\n'%(percentDone, timetaken/60.),
+                                readme=readme, verbose=verbose)
+        else:
+            readme = add_update(update='%f%% pixels done\nTime passed (min): %f\n'%(percentDone, timetaken),
+                                readme=readme, verbose=verbose)
         prevPercent = percentDone
-    #if (percentDone>1.):
-    #    break
-readme = add_update(update='\nAll done.\nTime passed (min): %f\n'%((time.time()-startTime)/60.),
-                    readme=readme, verbose=verbose)
+
+timetaken = (time.time()-startTime)/60.
+if timetaken > 60.:
+    readme = add_update(update='\nAll done.\nTime passed (hrs): %f\n'%(timetaken/60.),
+                        readme=readme, verbose=verbose)
+else:
+    readme = add_update(update='\nAll done.\nTime passed (min): %f\n'%(timetaken),
+                        readme=readme, verbose=verbose)
 
 #----------------------------------------------------------------------------------------------
 obsIDs, fIDs, chipNames, pixNums = np.array(obsIDs), np.array(fIDs), np.array(chipNames), np.array(pixNums)
@@ -174,21 +183,7 @@ readme = add_update(update='Total number of chips (across all visits to be simul
           readme=readme, verbose=verbose)
 
 #----------------------------------------------------------------------------------------------
-out = pd.read_csv(visits_path)
-if np.array(out['obsHistID'])!=obsIDsList:
-    readme = add_update(update='\n##ObsIDs do not match.', readme=readme, verbose=verbose)
-    if verbose:
-        plt.clf()
-        plt.hist(out['obsHistID'], label='saved before', histtype='step')
-        plt.hist(obsIDsList, label='calculated here', histtype='step')
-        plt.xlabel('Bins of obsIDs')
-        plt.ylabel('Counts')
-        plt.legend()
-        plt.show()
-else:
-    readme = add_update(update='\n##ObsIDs do match.', readme=readme, verbose=verbose)
-#----------------------------------------------------------------------------------------------
-# save the data + readme
+# save the data
 dataToSave = {'obsHistID': obsIDsList, 'fIDs': fIDsList, 'chipNames': chipNamesList}
 filename = 'chipPerVisitData_%s_nside%s_%dNonWaveFrontChipsToSimulate.pickle'%(surveyRegionTag, nside, sum(numChips))
 with open('%s/%s'%(output_path, filename), 'wb') as handle:
@@ -196,7 +191,34 @@ with open('%s/%s'%(output_path, filename), 'wb') as handle:
 
 readme = add_update(update='\nSaved %s in %s\n'%(filename, output_path), readme=readme, verbose=verbose)
 
-readme += '\nTotal time taken: %.2f (min)\n\n'%((time.time()-startTime_0)/60.)
+#----------------------------------------------------------------------------------------------
+# compare the ID list here with the one from before
+out = pd.read_csv(visits_path)
+old_obsIDs = np.array(out['obsHistID'])
+
+if set(old_obsIDs)==set(obsIDsList):
+    readme = add_update(update='\n##ObsIDs do match.', readme=readme, verbose=verbose)
+else:
+    update = '\n## ObsIDs do not match.'
+    # check which IDs are missing in what
+    extra = list(set(old_obsIDs)-set(obsIDsList))
+    if len(extra)>0:
+        update += '\n%s obsIDs in older list are not found here:\n%s'%(len(extra), extra)
+    else:
+        update += '\nAll obsIDs in the older list are found here.'
+    extra = list(set(obsIDsList)-set(old_obsIDs))
+    if len(extra)>0:
+        update += '\n%s obsIDs in the list here are not in the older list:\n%s'%(len(extra), extra)
+    else:
+        update += '\nAll obsIDs in the list here are in the older list.'
+    readme = add_update(update=update, readme=readme, verbose=verbose)
+#----------------------------------------------------------------------------------------------
+# save the readme
+timetaken = (time.time()-startTime_0)/60. # in mins
+if timetaken>60.:
+    readme += '\nTotal time taken: %.2f (hrs)\n\n'%(timetaken/60.)
+else:
+    readme += '\nTotal time taken: %.2f (min)\n\n'%(timetaken)
 
 readme_file= open('%s/chipcount_readme_%s_nside%s_%schips.txt'%(output_path, surveyRegionTag, nside, sum(numChips)), 'a')
 readme_file.write(readme)
