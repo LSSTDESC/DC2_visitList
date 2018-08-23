@@ -6,9 +6,20 @@ source /global/common/software/lsst/cori-haswell-gcc/stack/setup_current_sims.sh
 setup sims_maf -r /global/homes/a/awan/LSST/lsstRepos/sims_maf
 
 # run the code for Run1 visits
-python count_chips.py --nside=512 --dataFolder='protoDC2Visits_nside512' -q --surveyRegionTag='WFD' &
-python count_chips.py --nside=512 --dataFolder='protoDC2Visits_nside512' -q --surveyRegionTag='DD' &
-
+# WFD
+python /global/homes/a/awan/LSST/lsstRepos/DC2_visitList/DC2visitGen/code/count_chips.py -q --nside=512 \
+                                                                                         --dataFolder='protoDC2Visits_nside512' \
+                                                                                         --surveyRegionTag='WFD' &
+# DD
+python /global/homes/a/awan/LSST/lsstRepos/DC2_visitList/DC2visitGen/code/count_chips.py -q --nside=512 \
+                                                                                         --dataFolder='protoDC2Visits_nside512' \
+                                                                                         --surveyRegionTag='DD' &
 # run the code for Run2 visits
-python count_chips.py --nside=1024 --dataFolder='DC2_Run2_Visits_nside1024' -q --surveyRegionTag='WFD' &
-python count_chips.py --nside=1024 --dataFolder='DC2_Run2_Visits_nside1024' -q --surveyRegionTag='DD' &
+# WFD
+python /global/homes/a/awan/LSST/lsstRepos/DC2_visitList/DC2visitGen/code/count_chips.py -q --nside=1024 \
+                                                                                         --dataFolder='DC2_Run2_Visits_nside1024' \
+                                                                                         --surveyRegionTag='WFD' &
+# DD
+python /global/homes/a/awan/LSST/lsstRepos/DC2_visitList/DC2visitGen/code/count_chips.py -q --nside=1024 \
+                                                                                         --dataFolder='DC2_Run2_Visits_nside1024' \
+                                                                                         --surveyRegionTag='DD' &
