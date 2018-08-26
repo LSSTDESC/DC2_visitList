@@ -65,7 +65,7 @@ startTime_0 = time.time()
 if verbose:
     print('Nside: %s\nsurveyRegionTag: %s\nData read in from %s'%(nside, surveyRegionTag, dataFolder))
 
-readme = '##############################\n%s'%(datetime.date.isoformat(datetime.date.today()))
+readme = '##############################\n%s'%(datetime.datetime.now())
 readme += '\nRunning with lsst.sims.maf.__version__: %s'%lsst.sims.maf.__version__
 readme += '\n\ncount_chips run:\ndataFolder= %s'%dataFolder
 readme += '\nnside: %s'%nside
@@ -185,7 +185,7 @@ readme = add_update(update='Total number of chips (across all visits to be simul
 #----------------------------------------------------------------------------------------------
 # save the data
 dataToSave = {'obsHistID': obsIDsList, 'fIDs': fIDsList, 'chipNames': chipNamesList}
-filename = 'chipPerVisitData_%s_nside%s_%dNonWaveFrontChipsToSimulate.pickle'%(surveyRegionTag, nside, sum(numChips))
+filename = 'chipPerVisit_%s_nside%s_%dNonWaveFrontChips.pickle'%(surveyRegionTag, nside, sum(numChips))
 with open('%s/%s'%(output_path, filename), 'wb') as handle:
     pickle.dump(dataToSave, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -195,9 +195,11 @@ readme = add_update(update='\nSaved %s in %s\n'%(filename, output_path), readme=
 # compare the ID list here with the one from before
 out = pd.read_csv(visits_path)
 old_obsIDs = np.array(out['obsHistID'])
+readme = add_update(update='\n%s obsIDs in the list from before.'%len(old_obsIDs),
+                    readme=readme, verbose=verbose)
 
 if set(old_obsIDs)==set(obsIDsList):
-    readme = add_update(update='\n##ObsIDs do match.', readme=readme, verbose=verbose)
+    readme = add_update(update='\n## ObsIDs match.\n', readme=readme, verbose=verbose)
 else:
     update = '\n## ObsIDs do not match.'
     # check which IDs are missing in what
@@ -220,6 +222,6 @@ if timetaken>60.:
 else:
     readme += '\nTotal time taken: %.2f (min)\n\n'%(timetaken)
 
-readme_file= open('%s/chipcount_readme_%s_nside%s_%schips.txt'%(output_path, surveyRegionTag, nside, sum(numChips)), 'a')
+readme_file= open('%s/countchips_readme_%s_nside%s_%schips.txt'%(output_path, surveyRegionTag, nside, sum(numChips)), 'a')
 readme_file.write(readme)
 readme_file.close()
