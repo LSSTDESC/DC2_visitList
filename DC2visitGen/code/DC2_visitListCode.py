@@ -1,6 +1,4 @@
 # need LSST MAF loaded
-# also need set up beforehand: code from https://github.com/humnaawan/DC1-Regions
-
 import numpy as np
 import healpy as hp
 import pandas as pd
@@ -8,7 +6,6 @@ import lsst.sims.maf.db as db
 import lsst.sims.maf.slicers as slicers
 import lsst.sims.maf.metrics as metrics
 import lsst.sims.maf.metricBundles as metricBundles
-import lsst.sims.maf.utils as mafUtils
 
 from astropy.coordinates import SkyCoord
 from astropy import units as u
@@ -60,14 +57,14 @@ def findDC2RegionPixels(nside, regionCorners):
         corners[i,]= returnXYZ(regionCorners[i][0], regionCorners[i][1])
     return hp.query_polygon(nside, vertices= corners, inclusive= True) # HEALpixel numbers
 
-def findDC2RegionVisitsInfo(regionCorners, simdata, pointingRACol, pointingDecCol, nside):
+def findDC2RegionVisitsInfo(regionCorners, simdata, latLonDeg, pointingRACol, pointingDecCol, nside):
     """
     Get the visits that fall in the region specified by regionCorners.
     Returns: regionPixels, obsIDs, fIDs, bands
     """
     regionPixels= findDC2RegionPixels(nside, regionCorners)
     hpSlicer= slicers.HealpixSlicer(nside= nside, lonCol= pointingRACol,
-                                    latCol= pointingDecCol)
+                                    latCol= pointingDecCol, latLonDeg=latLonDeg)
     hpSlicer.setupSlicer(simdata)    # slice data: know which pixels are observed in which visit
     
     obsIDs, fIDs, bands= [], [], []
@@ -96,8 +93,8 @@ def getSimData(dbpath, surveyRegionTag, pointingRACol, pointingDecCol):
     # access the data
     opsdb = db.OpsimDatabase(dbpath)
     propIds, propTags = opsdb.fetchPropInfo()
-    sqlconstraint  = mafUtils.createSQLWhere(surveyRegionTag, propTags)
-    colnames = ['fieldID', 'fieldRA', 'fieldDec', 'filter', pointingRACol, pointingDecCol]
+    sqlconstraint  = opsdb.createSQLWhere(surveyRegionTag, propTags)
+    colnames = ['obsHistID', 'fieldID', 'fieldRA', 'fieldDec', 'filter', pointingRACol, pointingDecCol]
     simdata = opsdb.fetchMetricData(colnames, sqlconstraint)
 
     return simdata
@@ -120,11 +117,12 @@ def getDC2VisitList(dbpath, simDataTag, surveyRegionTag, pointingRACol, pointing
     
     # need to set up a HEALPIx map within MAF.
     opsdb = db.OpsimDatabase(dbpath)
+    latLonDeg = opsdb.raDecInDeg
     # no sql constraint: want the entire pixel grid
     sqlconstraint = None
     
     resultsDb = db.ResultsDb(outDir=outDir)
-    slicer= slicers.HealpixSlicer(nside= nside, lonCol= pointingRACol,  latCol= pointingDecCol, useCache=False)
+    slicer= slicers.HealpixSlicer(nside= nside, lonCol= pointingRACol,  latCol= pointingDecCol, useCache=False, latLonDeg=latLonDeg)
     metric= metrics.MeanMetric(col='fiveSigmaDepth')  # no reason to choose fiveSigmaDepth; just need something.
     bundle = metricBundles.MetricBundle(metric, slicer, sqlconstraint= sqlconstraint)
     bgroup = metricBundles.MetricBundleGroup({'pixelGrid': bundle}, opsdb, outDir=outDir,
@@ -139,10 +137,10 @@ def getDC2VisitList(dbpath, simDataTag, surveyRegionTag, pointingRACol, pointing
     # ------ ------  ------ ------  ------ ------  ------ ------ 
     # find the fIDs, obsIDs, bands in th region.
     print('\nFinding the visit list.')
-    simdata= getSimData(dbpath, surveyRegionTag, pointingRACol, pointingDecCol) 
-    out= findDC2RegionVisitsInfo(regionCorners, simdata, pointingRACol, pointingDecCol, nside)
+    simdata = getSimData(dbpath, surveyRegionTag, pointingRACol, pointingDecCol)
+    out= findDC2RegionVisitsInfo(regionCorners, simdata, latLonDeg, pointingRACol, pointingDecCol, nside)
     regionPixels, obsIDsList, fIDsList, bandList= out
-  
+
     # print out stuff
     print('\n##Total number of unique visits in the region (across all bands): %s'%(len(obsIDsList)))
     for band in filters:
