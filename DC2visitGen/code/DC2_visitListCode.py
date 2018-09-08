@@ -2,6 +2,7 @@
 import numpy as np
 import healpy as hp
 import pandas as pd
+import lsst.sims.maf
 import lsst.sims.maf.db as db
 import lsst.sims.maf.slicers as slicers
 import lsst.sims.maf.metrics as metrics
@@ -114,7 +115,8 @@ def getDC2VisitList(dbpath, simDataTag, surveyRegionTag, pointingRACol, pointing
     """
     if (surveyRegionTag!='WFD') and (surveyRegionTag!='DD'):
         raise ValueError('surveyRegionTag must be either WFD or DD. Not %s'%surveyRegionTag)
-    
+    print('###### lsst.sims.maf.__version__: %s\n'%lsst.sims.maf.__version__)
+
     # need to set up a HEALPIx map within MAF.
     opsdb = db.OpsimDatabase(dbpath)
     latLonDeg = opsdb.raDecInDeg
