@@ -27,8 +27,12 @@ def post_process_visit_lists(dir_to_readfrom, wfd_filename, uddf_filename, base_
 
     # create a dictionary to hold hold all-band visit lists
     visit_files = {}
-    visit_files['WFD'] = pd.read_csv('%s/visitLists/%s'%(dir_to_readfrom, wfd_filename), index_col='obsHistID')
-    visit_files['uDDF'] = pd.read_csv('%s/visitLists/%s'%(dir_to_readfrom, uddf_filename), index_col='obsHistID')
+    if wfd_filename is not None:
+        visit_files['WFD'] = pd.read_csv('%s/visitLists/%s'%(dir_to_readfrom, wfd_filename), index_col='obsHistID')
+    if uddf_filename is not None:
+        visit_files['uDDF'] = pd.read_csv('%s/visitLists/%s'%(dir_to_readfrom, uddf_filename), index_col='obsHistID')
+    if len(visit_files.keys())==0: # i.e. both uddf_filename, wfd_filename are None
+        raise ValueError('Must provide at least one of the two: wfd_filename or uddf_filename')
 
     # read in the columns from the full database
     opsdb = db.OpsimDatabase(dbpath)
