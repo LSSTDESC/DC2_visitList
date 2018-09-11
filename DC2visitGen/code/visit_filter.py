@@ -68,6 +68,7 @@ for band in 'ugrizy':
     outfile = outroot + 'DC2_Run2_' + band + '-band_WFDvisits_noDDF_noBright.txt'
     # write the file
     with open(outfile, "w") as f:
+        f.write('obsHistID expMJD\n')
         for id in wfd.keys():
             outstr = id + ' ' + wfd[id] + '\n'
             f.write(outstr)
@@ -76,6 +77,7 @@ for band in 'ugrizy':
     outfile = outroot + 'DC2_Run2_' + band + '-band_WFDvisits_tooBright.txt'
     # write the file
     with open(outfile, "w") as f:
+        f.write('obsHistID expMJD\n')
         for id in sorted(wfd_bright):  #.keys():
             outstr = str(id) + ' ' + wfd_bright[id] + '\n'
             f.write(outstr)
